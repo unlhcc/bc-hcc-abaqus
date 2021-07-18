@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# init lmod within container
+# # the lmod profile file are named differently on EL7 vs EL8
+# # don't ask me why
+[[ -f /etc/profile.d/z00_lmod.sh ]] && source /etc/profile.d/z00_lmod.sh
+[[ -f /etc/profile.d/modules.sh ]] && source /etc/profile.d/modules.sh
+
+# Clean the environment
+module purge
+
+# Set working directory to home directory
+cd "${HOME}"
+
+#
+# Launch Xfce Window Manager and Panel
+#
+
+(
+  export SEND_256_COLORS_TO_REMOTE=1
+  export XDG_CONFIG_HOME="<%= session.staged_root.join("config") %>"
+  export XDG_DATA_HOME="<%= session.staged_root.join("share") %>"
+  export XDG_CACHE_HOME="$(mktemp -d)"
+  export XDG_RUNTIME_DIR="$(mktemp -d)"
+  export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/var/run/dbus/system_bus_socket
+  export `dbus-launch`
+  module restore
+  set -x
+  xfwm4 --compositor=off --daemon --sm-client-disable &
+  xsetroot -solid "#C7C8CA"
+  xfsettingsd --sm-client-disable
+  xfce4-panel --sm-client-disable &
+  xfdesktop --sm-client-disable &
+) &
+
+
+# The GUI takes a while to start
+# # Loop until it's there and then try to maximize the window (thanks John!)
+(
+while true ; do
+  wmctrl -l | grep -i 'CAE'
+  if [ $? -eq 0 ]; then break; fi
+    sleep 1
+done
+wmctrl -r CAE -b add,maximized_vert,maximized_horz
+) &
+
+#
+# Start Abaqus
+#
+
+# Load the required environment
+module load <%= context.abaqus_version %>
+
+# Launch Abaqus
+module list
+set -x
+abaqus cae \
+ |& tee "<%= session.staged_root.join("abaqus.log") %>"
+ABAQUS_EXIT_CODE=${PIPESTATUS[0]}
+{ set +x; } 2>/dev/null
+
+if [[ ${ABAQUS_EXIT_CODE} -ne 0 ]]; then
+cat | xmessage -file - -center <<- EOL
+ABAQUS/CAE died with the following output:
+$(cat "<%= session.staged_root.join("abaqus.log") %>")
+EOL
+fi

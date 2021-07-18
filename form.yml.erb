@@ -1,0 +1,97 @@
+---
+attributes:
+  desktop: "xfce"
+  bc_queue:
+    label: "Partition selection"
+    value: "batch"
+    help: |
+      - `batch` - The normal general access partition
+      - `gpu` - The gpu partition
+      - *other partitions may be specified if your account has access*
+  bc_num_slots: 1
+  bc_num_cores:
+    widget: "number_field"
+    label: "Number of cores"
+    help: "Number of cores requested on a node (min 1, max 8)"
+    min: 1
+    max: 8
+    step: 1
+    value: "1"
+    id: "num_cores"
+  bc_num_hours:
+    widget: "number_field"
+    label: "Running time in hours"
+    help: "Maximum runtime in hours (min 1, max 8)"
+    min: 1
+    max: 8
+    step: 1
+    value: "1"
+  bc_memory:
+    widget: "number_field"
+    label: "Requested RAM in GBs"
+    help: "Maximum memory requested (min 1GB, max 16GBs)"
+    min: 1
+    max: 16
+    step: 1
+    value: "1"
+    id: "memory"
+  qos_type:
+    widget: select
+    label: "QoS type"
+    value: "short"
+    help: |
+      - `short` - Use the short QoS to increase job priority. Limits per user are 6 hour job run time, 2 jobs of 16CPUs or fewer.
+      - `normal` - Use the regular batch queue.
+    options:
+      - ["short", "short"]
+      - ["normal", "normal"]
+  bc_gres:
+    widget: "text_field"
+    label: "GRES"
+    help: "This field is used primarily for gpu submissions. You must specify a gres of at least `gpu` when using the GPU partition. Other possible values may b
+e
+ [found here](https://hcc.unl.edu/docs/submitting_jobs/submitting_gpu_jobs/#requesting-gpu-resources-in-your-slurm-script)."
+    value: ''
+  bc_constraint:
+    widget: "text_field"
+    label: "Job Constraints"
+    help: "Additional constraints for the job. Primarily used for specifying a [GPU type](https://hcc.unl.edu/docs/submitting_jobs/submitting_gpu_jobs/#availabl
+e
+-gpus) or [node type](https://hcc.unl.edu/docs/submitting_jobs/partitions/#use-of-infiniband-or-opa)."
+    value: ''
+  bc_email_address:
+    widget: "email_field"
+    value: ""
+    label: "Email"
+    help: "Email address used for notifications"
+  bc_reservation:
+    widget: "text_field"
+    label: "Reservation"
+    help: "Submit to a specific reservation if your account has access."
+    value: ''
+  bc_vnc_idle: 0
+  bc_vnc_resolution:
+    required: true
+  abaqus_version:
+    widget: select
+    label: "Abaqus version"
+    help: "This defines the version of Abaqus you want to load."
+    options:
+      - [ "2021", "abaqus/2021" ]
+      - [ "2019", "abaqus/2019" ]
+form:
+  - abaqus_version
+  - desktop
+  - bc_vnc_idle
+  - bc_vnc_resolution
+  - bc_num_slots
+  - bc_num_cores
+  - bc_num_hours
+  - bc_memory
+  - qos_type
+  - bc_queue
+  - bc_reservation
+  - bc_gres
+  - bc_constraint
+  - bc_email_address
+  - bc_email_on_started

@@ -1,0 +1,77 @@
+<%-
+cores = bc_num_cores.blank? ? 1 : bc_num_cores.to_i
+mem = bc_memory.blank? ? 1 : bc_memory.to_i
+nodes = bc_num_slots.blank? ? 1 : bc_num_slots.to_i
+
+begin
+  cmd = "rpm -E %{rhel}"
+  output, status = Open3.capture2e(cmd)
+  if status.success?
+    rhel_version = output.strip_to_s
+    case rhel_version
+    when "7"
+      image = "/work/HCC/SINGULARITY/IMAGES/xfce_el7.sif"
+    when "8"
+      image = "/work/HCC/SINGULARITY/IMAGES/xfce_el8.sif"
+    end
+  else
+    raise output
+  end
+  rescue => e
+  image = "/work/HCC/SINGULARITY/IMAGES/xfce_el7.sif"
+end
+
+%>
+---
+batch_connect:
+  template: vnc
+  set_host: "host=$(hostname)"
+  websockify_cmd: '/usr/bin/websockify'
+  script_wrapper: |
+    export WORK=${HOME/#\/home/\/work}
+    export COMMON=${HOME/#\/home/\/common}
+    . /util/opt/lmod/lmod/init/profile
+    export -f module
+    module use /util/opt/hcc-modules/Common
+    module load singularity
+    cat << "CTRSCRIPT" > container.sh
+    export PATH="${PATH}:/opt/TurboVNC/bin:/util/opt/bin"
+    export XFCE_ROOT="/"
+    touch $HOME/.cache/sessions/xfce4-session-`hostname`:1
+    %s
+    CTRSCRIPT
+    # https://github.com/hpcng/singularity/issues/5185
+    cat << "BASE" > /tmp/99-base.sh
+    if [ -z "${LD_LIBRARY_PATH}" ]; then
+      LD_LIBRARY_PATH="/.singularity.d/libs"
+    else
+      LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/.singularity.d/libs"
+    fi
+    export LD_LIBRARY_PATH
+    export PS1="[\u@\h \W]\$ "
+    BASE
+    chmod +x /tmp/99-base.sh
+    export SINGULARITY_BINDPATH="/home,/work,/common,/util,/media,/mnt,/srv,/var/run,/run,/tmp/99-base.sh:/.singularity.d/env/99-base.sh:ro"
+    singularity exec -B ${TMPDIR}:/tmp <%= image %> /bin/bash container.sh
+
+script:
+  # Slurm option is mem, memory is passed from the form
+  copy_environment: true
+  email: ["<%= bc_email_address.strip %>"]
+  native:
+    - "--qos"
+    - "<%= qos_type %>"
+    - "--mem"
+    - "<%= mem %>GB"
+    - "--licenses"
+    - "common"
+    - "--ntasks-per-node"
+    - "<%= cores %>"
+    - "--nodes"
+    - "<%= nodes %>"
+    - "--constraint"
+    - "<%= bc_constraint.strip %>"
+    - "--gres"
+    - "<%= bc_gres.strip %>"
+    - "--reservation"
+    - "<%= bc_reservation.strip %>"

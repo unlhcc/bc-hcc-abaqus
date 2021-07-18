@@ -1,0 +1,9 @@
+._*
+.cache
+artifacts
+/tmp/
+/local
+._*
+*.tar.gz
+*.tar
+*.gz
