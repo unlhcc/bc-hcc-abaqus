@@ -23,6 +23,7 @@ all: srpm rpm clean
 ${PROG}-${VERSION}.tar.gz:
 	${TAR} --transform "s/^\./${PROG}-${VERSION}/" \
 	       --exclude=${PROG}.tar \
+               --exclude=${PROG}.tar.gz \
 	       --exclude=${RESULTDIR} \
 	       --exclude=${CACHEDIR} \
 	       --exclude-vcs \
@@ -41,4 +42,4 @@ rpm: srpm
 
 clean:
 	-${RM} ${PROG}.tar.gz
-	-${RM} ${RESULTDIR}/*.rpm
+	-${RM} ${RESULTDIR}/${ARCH}/*.rpm
