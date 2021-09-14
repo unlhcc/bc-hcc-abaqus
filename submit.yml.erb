@@ -30,10 +30,8 @@ batch_connect:
   script_wrapper: |
     export WORK=${HOME/#\/home/\/work}
     export COMMON=${HOME/#\/home/\/common}
-    . /util/opt/lmod/lmod/init/profile
-    export -f module
-    module use /util/opt/hcc-modules/Common
-    module load singularity
+    export SINGULARITY_CACHEDIR=${WORK}/.singularity
+    export REGISTRY="hcc-docker-registry.unl.edu"
     cat << "CTRSCRIPT" > container.sh
     export PATH="${PATH}:/opt/TurboVNC/bin:/util/opt/bin"
     export XFCE_ROOT="/"
