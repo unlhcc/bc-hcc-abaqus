@@ -12,9 +12,9 @@ attributes:
   bc_num_cores:
     widget: "number_field"
     label: "Number of cores"
-    help: "Number of cores requested on a node (min 1, max 8)"
+    help: "Number of cores requested on a node (min 1, max 16)"
     min: 1
-    max: 8
+    max: 16
     step: 1
     value: "1"
     id: "num_cores"
@@ -29,11 +29,11 @@ attributes:
   bc_memory:
     widget: "number_field"
     label: "Requested RAM in GBs"
-    help: "Maximum memory requested (min 1GB, max 16GBs)"
-    min: 1
-    max: 16
+    help: "Maximum memory requested (min 4GB, max 62GBs)"
+    min: 4
+    max: 62
     step: 1
-    value: "1"
+    value: "4"
     id: "memory"
   qos_type:
     widget: select
