@@ -10,15 +10,15 @@ begin
     rhel_version = output.strip_to_s
     case rhel_version
     when "7"
-      image = "/work/HCC/SINGULARITY/IMAGES/xfce_el7.sif"
+      image = "/work/HCC/APPTAINER/IMAGES/xfce_el7.sif"
     when "8"
-      image = "/work/HCC/SINGULARITY/IMAGES/xfce_el8.sif"
+      image = "/work/HCC/APPTAINER/IMAGES/xfce_el8.sif"
     end
   else
     raise output
   end
   rescue => e
-  image = "/work/HCC/SINGULARITY/IMAGES/xfce_el7.sif"
+  image = "/work/HCC/APPTAINER/IMAGES/xfce_el7.sif"
 end
 
 %>
@@ -30,7 +30,7 @@ batch_connect:
   script_wrapper: |
     export WORK=${HOME/#\/home/\/work}
     export COMMON=${HOME/#\/home/\/common}
-    export SINGULARITY_CACHEDIR=${WORK}/.singularity
+    export APPTAINER_CACHEDIR=${WORK}/.apptainer
     export REGISTRY="hcc-docker-registry.unl.edu"
     cat << "CTRSCRIPT" > container.sh
     export PATH="${PATH}:/opt/TurboVNC/bin:/util/opt/bin"
@@ -49,8 +49,8 @@ batch_connect:
     export PS1="[\u@\h \W]\$ "
     BASE
     chmod +x /tmp/99-base.sh
-    export SINGULARITY_BINDPATH="/home,/work,/common,/util,/media,/mnt,/srv,/var/run,/run,/tmp/99-base.sh:/.singularity.d/env/99-base.sh:ro"
-    singularity exec -B ${TMPDIR}:/tmp <%= image %> /bin/bash container.sh
+    export APPTAINER_BINDPATH="/home,/work,/common,/util,/media,/mnt,/srv,/var/run,/run,/tmp/99-base.sh:/.singularity.d/env/99-base.sh:ro"
+    apptainer exec -B ${TMPDIR}:/tmp <%= image %> /bin/bash container.sh
 
 script:
   # Slurm option is mem, memory is passed from the form
