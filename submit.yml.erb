@@ -30,6 +30,7 @@ batch_connect:
   script_wrapper: |
     export WORK=${HOME/#\/home/\/work}
     export COMMON=${HOME/#\/home/\/common}
+    export NRDSTOR=${HOME/#\/home/\/mnt/nrdstor}
     export APPTAINER_CACHEDIR=${WORK}/.apptainer
     export REGISTRY="hcc-docker-registry.unl.edu"
     cat << "CTRSCRIPT" > container.sh
