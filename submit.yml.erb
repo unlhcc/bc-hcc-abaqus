@@ -29,7 +29,6 @@ batch_connect:
   websockify_cmd: '/usr/bin/websockify'
   script_wrapper: |
     export WORK=${HOME/#\/home/\/work}
-    export COMMON=${HOME/#\/home/\/common}
     export NRDSTOR=${HOME/#\/home/\/mnt/nrdstor}
     export APPTAINER_CACHEDIR=${WORK}/.apptainer
     export REGISTRY="hcc-docker-registry.unl.edu"
@@ -50,7 +49,7 @@ batch_connect:
     export PS1="[\u@\h \W]\$ "
     BASE
     chmod +x /tmp/99-base.sh
-    export APPTAINER_BINDPATH="/home,/work,/common,/util,/media,/mnt,/srv,/var/run,/run,/tmp/99-base.sh:/.singularity.d/env/99-base.sh:ro"
+    export APPTAINER_BINDPATH="/home,/work,/util,/media,/mnt,/srv,/var/run,/run,/tmp/99-base.sh:/.singularity.d/env/99-base.sh:ro"
     apptainer exec -B ${TMPDIR}:/tmp <%= image %> /bin/bash container.sh
 
 script:
@@ -62,8 +61,6 @@ script:
     - "<%= qos_type %>"
     - "--mem"
     - "<%= mem %>GB"
-    - "--licenses"
-    - "common"
     - "--ntasks-per-node"
     - "<%= cores %>"
     - "--nodes"
